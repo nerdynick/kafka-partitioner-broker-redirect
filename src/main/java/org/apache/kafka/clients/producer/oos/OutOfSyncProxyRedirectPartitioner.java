@@ -1,10 +1,8 @@
 package org.apache.kafka.clients.producer.oos;
 
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.kafka.clients.producer.Partitioner;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,19 +24,6 @@ public class OutOfSyncProxyRedirectPartitioner implements Partitioner {
 
     @Override
     public void configure(Map<String, ?> configs) {
-        Properties p = new Properties();
-        p.putAll(configs);
-
-        ProducerConfig c = new ProducerConfig(p);
-
-        Integer deliveryTimeout = c.getInt(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG);
-        Long metadatTTL = c.getLong(ProducerConfig.METADATA_MAX_AGE_CONFIG);
-
-        LOG.info("MetadataTTL=`{}` DeliveryTimeout=`{}`", metadatTTL, deliveryTimeout);
-        if (metadatTTL >= deliveryTimeout){
-            LOG.warn("Metadata TTL is Greater >= Delivery Timeout. The can result in increased delayed response to ISR issues and more TimedOut records to handle.");
-        }
-
         uStickyPartitionCache.configure(configs);
     }
 

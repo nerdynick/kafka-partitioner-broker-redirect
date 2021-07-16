@@ -3,7 +3,6 @@ package org.apache.kafka.clients.producer.oos;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.config.AbstractConfig;
@@ -44,7 +43,7 @@ public class OutOfSyncProxyRedirectStickyPartitionCache extends AbstractOutOfSyn
 
         final static ConfigDef CONFIG;
         static {
-            CONFIG = new ConfigDef(ProducerConfig.configDef())
+            CONFIG = new ConfigDef()
                 .define(PROXY_TOPIC_CONFIG, Type.STRING, Importance.HIGH, "Kafka Topic to use as a Proxy topic to detect invalid Nodes to exclude from Publishing to");
         }
 
