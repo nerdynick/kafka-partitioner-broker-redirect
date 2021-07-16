@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -78,6 +79,37 @@ public class TestOutOfSyncRedirectPartitioner {
             assertTrue(m.partition() >= 1 && m.partition() <=3, "Partition was an invalid one");
         }
 
+        producer.close();
+    }
+
+    @Test
+    public void testMultiThread() throws InterruptedException, ExecutionException{
+        final Producer<byte[], byte[]> producer = new MockProducer<>(BadCluster, true, new OutOfSyncRedirectPartitioner(), new ByteArraySerializer(), new ByteArraySerializer());
+        final CountDownLatch countDownLatch = new CountDownLatch(10);
+
+        for(int threads = 0; threads < 10; threads++){
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    for(int records = 0; records < 100; records++){
+                        Future<RecordMetadata> f = producer.send(new ProducerRecord<byte[],byte[]>("test", null, testBytes));
+                        RecordMetadata m;
+                        try {
+                            m = f.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        assertNotNull(m.partition());
+                        assertTrue(m.partition() >= 1 && m.partition() <=3, "Partition was an invalid one");
+                    }
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+
+        
+        countDownLatch.await();
         producer.close();
     }
 }
