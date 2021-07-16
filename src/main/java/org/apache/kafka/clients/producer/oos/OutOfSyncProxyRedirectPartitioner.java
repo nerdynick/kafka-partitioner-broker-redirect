@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
  * @see org.apache.kafka.clients.producer.Partitioner
  * @see org.apache.kafka.clients.producer.oos.OutOfSyncRedirectStickyPartitionCache
  */
-public class OutOfSyncRedirectPartitioner implements Partitioner {
+public class OutOfSyncProxyRedirectPartitioner implements Partitioner {
     private static final Logger LOG = LoggerFactory.getLogger(OutOfSyncRedirectPartitioner.class);
 
-    final OutOfSyncRedirectStickyPartitionCache uStickyPartitionCache = new OutOfSyncRedirectStickyPartitionCache();
+    final OutOfSyncProxyRedirectStickyPartitionCache uStickyPartitionCache = new OutOfSyncProxyRedirectStickyPartitionCache();
 
     @Override
     public void configure(Map<String, ?> configs) {
