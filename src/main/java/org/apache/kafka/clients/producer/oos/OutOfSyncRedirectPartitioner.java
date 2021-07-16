@@ -1,24 +1,28 @@
 package org.apache.kafka.clients.producer.oos;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
-import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of {@link org.apache.kafka.clients.producer.Partitioner} that uses {@link org.apache.kafka.clients.producer.oos.OutOfSyncRedirectStickyPartitionCache}
+ * to redirect records away from Brokers that have out of sync replicas for the Topic that is being published too.
+ * 
+ * The idea is to give the slow broker the ability to catch up on replication and Publish requests
+ * by redirect away new records from being pushed to it. Until the replicas are considered In Sync.
+ * 
+ * @see org.apache.kafka.clients.producer.Partitioner
+ * @see org.apache.kafka.clients.producer.oos.OutOfSyncRedirectStickyPartitionCache
+ */
 public class OutOfSyncRedirectPartitioner implements Partitioner {
     private static final Logger LOG = LoggerFactory.getLogger(OutOfSyncRedirectPartitioner.class);
 
-
     final OutOfSyncRedirectStickyPartitionCache uStickyPartitionCache = new OutOfSyncRedirectStickyPartitionCache();
-
-    final Map<String, List<PartitionInfo>> availablePartitions = new HashMap<>();
 
     @Override
     public void configure(Map<String, ?> configs) {

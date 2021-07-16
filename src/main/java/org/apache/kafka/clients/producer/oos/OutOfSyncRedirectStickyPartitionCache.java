@@ -15,6 +15,12 @@ import org.apache.kafka.common.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Modified version of {@link org.apache.kafka.clients.producer.internals.StickyPartitionCache} that reduces what is considered an Available partition.
+ * It does this by removing any partitions whos leader might also have replica for the same topic that are not in sync with the leader of that partition.
+ * 
+ * @see org.apache.kafka.clients.producer.internals.StickyPartitionCache
+ */
 public class OutOfSyncRedirectStickyPartitionCache {
     private static final Logger LOG = LoggerFactory.getLogger(OutOfSyncRedirectStickyPartitionCache.class);
 
@@ -24,6 +30,13 @@ public class OutOfSyncRedirectStickyPartitionCache {
         this.indexCache = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Either computes a new partition or returns the current partition to be publishing too.
+     * 
+     * @param topic Topic to Partition against
+     * @param cluster Cluster Metadata state
+     * @return New or Cached partition ID
+     */
     public int partition(String topic, Cluster cluster) {
         Integer part = indexCache.get(topic);
         if (part == null) {
@@ -33,6 +46,15 @@ public class OutOfSyncRedirectStickyPartitionCache {
         return part;
     }
 
+    /**
+     * Moves the index to a new computed one. 
+     * Not ment to be called directly when look to get a partition to send a record to.
+     * 
+     * @param topic Topic to Partition against
+     * @param cluster Cluster Metadata state
+     * @param prevPartition Last partition to be written to or -1
+     * @return New partition ID
+     */
     public int nextPartition(String topic, Cluster cluster, int prevPartition) {
         LOG.debug("Computing new Partition");
         List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
@@ -64,6 +86,16 @@ public class OutOfSyncRedirectStickyPartitionCache {
         return indexCache.get(topic);
     }
 
+    /**
+     * Evaulates the given state of the world and finds what partitions are available base on weather they are Offline or also contain OutOfSync replicas.
+     * OutOfSync Replicas are based on evaluating all leaders and replicas looking for a leader of 1 partition that has replicas for other partitions. 
+     * If any of those other replicas are not InSync. 
+     * Then that leader is consisered to not be available and there for all partitions it's a leader for to not be available. 
+     * 
+     * @param topic Topic to Partition against
+     * @param cluster Cluster Metadata state
+     * @return New partition ID
+     */
     protected List<PartitionInfo> computeAvailablePartitions(String topic, Cluster cluster){
         LOG.debug("Computing Available Partitions based on InSyncReplicas");
         final List<PartitionInfo> availablePartitions = cluster.availablePartitionsForTopic(topic);

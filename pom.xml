@@ -2,24 +2,36 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.kafka</groupId>
   <artifactId>kafka-partitioner-broker-redirect</artifactId>
-  <version>y</version>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <name>Kafka Redirect Partitioners</name>
+  <description>Kafka Partitioner Implementations for Redirect Records</description>
+  <url>https://github.com/nerdynick/kafka-partitioner-broker-redirect</url>
+
+  <scm>
+		<url>https://github.com/nerdynick/kafka-partitioner-broker-redirect</url>
+		<connection>scm:git:ssh://git@github.com/nerdynick/kafka-partitioner-broker-redirect.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/nerdynick/kafka-partitioner-broker-redirect.git</developerConnection>
+	  <tag>HEAD</tag>
+  </scm>
+
+  <licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>5.6.0</junit.version>
 
+    <junit.version>5.6.0</junit.version>
     <kafka.version>2.7.1</kafka.version>
   </properties>
+
   <dependencies>
-
-    <!-- <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>30.1.1-jre</version>
-    </dependency> -->
-
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -47,4 +59,35 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
